@@ -1,0 +1,7 @@
+{
+  "name": "SafetyStory AI",
+  "description": "An AI-powered creative storytelling platform that transforms workplace safety and technical knowledge into engaging stories, visual narratives, multimedia concepts and multi-platform campaigns.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
