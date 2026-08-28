@@ -14,6 +14,7 @@ import {
   Heart,
   Eye,
   Zap,
+  Lock,
 } from "lucide-react";
 import { SafetyCampaign } from "../types";
 import { NarrativeView } from "./NarrativeView";
@@ -174,13 +175,13 @@ export const StudioView: React.FC<StudioViewProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveSubTab(tab.id as StudioSubTab)}
-              className={`flex items-center space-x-2 px-3.5 py-2 rounded-sm text-[11px] font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+              className={`flex items-center space-x-2 px-3.5 py-2 rounded-sm text-[11px] font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer ${
                 isCurrent
                   ? "bg-[#1C1C1C] text-white shadow-sm"
                   : "text-[#1C1C1C]/60 hover:text-[#1C1C1C] hover:bg-[#F0EFEC]"
               }`}
             >
-              <Icon className="w-3.5 h-3.5" />
+              <Icon className="w-3.5 h-3.5 text-[#FF5F1F]" />
               <span>{tab.label}</span>
             </button>
           );

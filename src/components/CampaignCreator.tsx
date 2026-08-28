@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import {
   Sparkles,
-  Zap,
-  BookOpen,
   Send,
   Wand2,
   HardHat,
@@ -14,20 +12,21 @@ import {
   Plane,
   Building2,
   FileText,
-  HelpCircle,
-  Clock,
   Target,
   Users,
   Compass,
   Lightbulb,
   CheckCircle2,
-  ArrowRight,
   ShieldCheck,
-  Radio,
-  Clapperboard,
-  Tv,
 } from "lucide-react";
-import { IndustryType, AudienceType, StoryArchetype, SafetyCampaign, PresetTopic, CreativeConcept } from "../types";
+import {
+  IndustryType,
+  AudienceType,
+  StoryArchetype,
+  SafetyCampaign,
+  PresetTopic,
+  CreativeConcept,
+} from "../types";
 import { PRESET_TOPICS } from "../data/presets";
 
 export interface CampaignCreatorProps {
@@ -171,12 +170,13 @@ export const CampaignCreator: React.FC<CampaignCreatorProps> = ({
   }, [prefilledIdea, prefilledIndustry]);
 
   const loadingSteps = [
-    "SafetyStory AI: Ingesting technical knowledge & hazard mechanics...",
+    "SafetyStory AI: Analyzing technical scenario & safety principles...",
     "Ideating character arcs, setting, and critical decision points...",
+    "Composing 10-step high-impact narrative drama...",
     "Directing 5-scene visual storyboard with image & video prompts...",
-    "Composing supervisor toolbox talk, pledge, and hands-on checklist...",
-    "Developing multi-platform content for LinkedIn, X, TikTok, IG & film script...",
-    "Executing safety quality control & factual review check...",
+    "Drafting 4-minute supervisor toolbox talk, crew pledge & checklist...",
+    "Building interactive branching decision simulator...",
+    "Generating multi-platform media suite, poster concepts & mastery quiz...",
   ];
 
   const handleApplyPreset = (preset: PresetTopic) => {
@@ -201,12 +201,49 @@ export const CampaignCreator: React.FC<CampaignCreatorProps> = ({
           audience,
         }),
       });
-      const data = await res.json();
-      if (data.concepts && Array.isArray(data.concepts)) {
-        setIdeatedConcepts(data.concepts);
+
+      const contentType = res.headers.get("content-type");
+      if (res.ok && contentType && contentType.includes("application/json")) {
+        const data = await res.json();
+        if (data && data.concepts && Array.isArray(data.concepts) && data.concepts.length > 0) {
+          setIdeatedConcepts(data.concepts);
+          return;
+        }
       }
+
+      // Fallback concepts
+      const cleanT = topic.trim();
+      setIdeatedConcepts([
+        {
+          id: "concept_1",
+          title: `The Echo of a Split Second`,
+          hook: `One critical choice changes an entire lifetime on the shift.`,
+          coreIdea: `A high-impact human story examining the silent pressures of cutting corners versus following protocol for ${cleanT}.`,
+          emotionalAngle: `High personal stakes and family responsibility.`,
+          recommendedFormat: "Cinematic",
+          whyEngaging: `Visceral sensory tension and relatable character motivations.`,
+        },
+        {
+          id: "concept_2",
+          title: `Forensic Breakdown: The Anatomy of a Near Miss`,
+          hook: `Disasters don't start with a bang; they start with an overlooked check.`,
+          coreIdea: `An investigative documentary deconstructing the sequence of factors in ${cleanT}.`,
+          emotionalAngle: `Analytical curiosity and objective professional pride.`,
+          recommendedFormat: "Documentary",
+          whyEngaging: `Step-by-step forensic clarity makes complex SOPs memorable.`,
+        },
+        {
+          id: "concept_3",
+          title: `Interactive Shift: The Crossroad Choice`,
+          hook: `You have 30 seconds before release. What is your call?`,
+          coreIdea: `A branching scenario simulator testing hazard assessment under realistic pressure for ${cleanT}.`,
+          emotionalAngle: `Agency, empowerment, and direct accountability.`,
+          recommendedFormat: "Interactive",
+          whyEngaging: `Active decision-making triggers lasting behavioral compliance.`,
+        },
+      ]);
     } catch (err) {
-      console.error("Failed to ideate concepts:", err);
+      console.warn("Failed to fetch ideated concepts from server:", err);
     } finally {
       setIsIdeating(false);
     }
@@ -215,7 +252,6 @@ export const CampaignCreator: React.FC<CampaignCreatorProps> = ({
   const handleSelectConcept = (concept: CreativeConcept) => {
     setSelectedConcept(concept);
     if (concept.recommendedFormat) {
-      // Find matching archetype
       const match = ARCHETYPES.find((a) => a.label.toLowerCase() === concept.recommendedFormat.toLowerCase()) ||
                     ARCHETYPES.find((a) => a.label.toLowerCase().includes(concept.recommendedFormat.toLowerCase()));
       if (match) {
@@ -229,16 +265,18 @@ export const CampaignCreator: React.FC<CampaignCreatorProps> = ({
     e.preventDefault();
     if (!topic.trim()) return;
 
+    const requestPayload = {
+      topic,
+      industry,
+      audience,
+      archetype,
+      keyRules,
+      toneModifiers,
+      selectedConcept,
+    };
+
     if (onGenerate) {
-      onGenerate({
-        topic,
-        industry,
-        audience,
-        archetype,
-        keyRules,
-        toneModifiers,
-        selectedConcept,
-      });
+      await onGenerate(requestPayload);
       return;
     }
 
@@ -253,15 +291,7 @@ export const CampaignCreator: React.FC<CampaignCreatorProps> = ({
       const res = await fetch("/api/generate-campaign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          topic,
-          industry,
-          audience,
-          archetype,
-          keyRules,
-          toneModifiers,
-          selectedConcept,
-        }),
+        body: JSON.stringify(requestPayload),
       });
 
       const data = await res.json();
@@ -280,10 +310,10 @@ export const CampaignCreator: React.FC<CampaignCreatorProps> = ({
 
   return (
     <div className="max-w-6xl mx-auto py-8 sm:py-12 px-4 sm:px-6">
-      {/* Hero Header - Editorial Style */}
+      {/* Hero Header */}
       <div className="text-center max-w-3xl mx-auto mb-10">
         <span className="text-[10px] uppercase tracking-widest font-bold text-[#FF5F1F] mb-3 block">
-          Creative Director Pipeline &bull; Technical Transformation Engine
+          SafetyStory AI &bull; Creative Campaign Suite
         </span>
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif italic text-[#1C1C1C] leading-[0.95] tracking-tight mb-4">
           One Safety Idea. <br />
@@ -331,12 +361,12 @@ export const CampaignCreator: React.FC<CampaignCreatorProps> = ({
           <div className="flex items-center justify-between mb-2">
             <label className="flex items-center space-x-2 text-[11px] font-bold uppercase tracking-widest text-[#1C1C1C]">
               <FileText className="w-3.5 h-3.5 text-[#FF5F1F]" />
-              <span>1. Technical Topic, Safety SOP, or Hazard Observation</span>
+              <span>1. Technical Topic, Safety Scenario, or Incident Brief</span>
             </label>
             <span className="text-[10px] uppercase tracking-wider font-bold text-[#FF5F1F]">Required</span>
           </div>
           <p className="text-xs text-[#1C1C1C]/60 italic font-serif mb-3">
-            Enter a rule, hazard, technical procedure (e.g. &quot;Lockout/Tagout Zero Energy State&quot; or &quot;Working at Heights 100% Tie-Off&quot;), or paste an SOP policy excerpt.
+            Enter a rule, hazard, technical procedure (e.g. &quot;Lockout/Tagout Zero Energy State&quot; or &quot;MEWP Inspection & Harness Tie-Off&quot;), or paste an incident debrief.
           </p>
           <textarea
             id="safety-topic-input"
@@ -348,8 +378,8 @@ export const CampaignCreator: React.FC<CampaignCreatorProps> = ({
             className="w-full bg-[#F9F8F6] border border-[#1C1C1C]/15 focus:border-[#FF5F1F] focus:bg-white focus:ring-1 focus:ring-[#FF5F1F] rounded-sm p-4 text-[#1C1C1C] placeholder-[#1C1C1C]/40 text-sm leading-relaxed transition font-sans"
           />
 
-          {/* Ideation Action Button */}
-          <div className="mt-3 flex items-center justify-between">
+          {/* Action Row: Ideate Concepts */}
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
             <button
               type="button"
               onClick={handleIdeateConcepts}
@@ -363,9 +393,6 @@ export const CampaignCreator: React.FC<CampaignCreatorProps> = ({
               <Lightbulb className={`w-3.5 h-3.5 ${isIdeating ? "animate-spin" : ""}`} />
               <span>{isIdeating ? "Brainstorming 3-5 Creative Pitches..." : "✨ Ideate 3-5 Creative Concepts"}</span>
             </button>
-            <span className="text-[10px] text-[#1C1C1C]/50 font-serif italic">
-              Explores diverse angles: Cinematic, Documentary, Interactive, & Parables
-            </span>
           </div>
 
           {/* Ideated Concepts Display */}
@@ -457,15 +484,12 @@ export const CampaignCreator: React.FC<CampaignCreatorProps> = ({
           <div className="flex items-center justify-between mb-2">
             <label className="flex items-center space-x-2 text-[11px] font-bold uppercase tracking-widest text-[#1C1C1C]">
               <Wand2 className="w-3.5 h-3.5 text-[#FF5F1F]" />
-              <span>3. Creative Mode & Archetype</span>
+              <span>3. Creative Presentation Archetype</span>
             </label>
             <span className="text-[10px] text-[#FF5F1F] font-bold uppercase tracking-wider">
-              9 Official Creative Modes
+              Visual & Narrative Genre
             </span>
           </div>
-          <p className="text-xs text-[#1C1C1C]/60 italic font-serif mb-3">
-            Select the dramatic medium engineered to anchor the safety protocol permanently in human memory.
-          </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
             {ARCHETYPES.map((arch) => {
               const isSelected = archetype === arch.label;
@@ -492,7 +516,7 @@ export const CampaignCreator: React.FC<CampaignCreatorProps> = ({
                   </div>
                   {isSelected && (
                     <div className="mt-2 text-[9px] uppercase tracking-widest text-[#FF5F1F] font-bold">
-                      &bull; Selected Mode
+                      &bull; Selected Style
                     </div>
                   )}
                 </div>
@@ -501,7 +525,7 @@ export const CampaignCreator: React.FC<CampaignCreatorProps> = ({
           </div>
         </div>
 
-        {/* Step 4: Target Audience & Key Rules Focus */}
+        {/* Step 4 & 5: Target Audience & Key Rules Focus */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2 border-t border-[#1C1C1C]/10">
           {/* Target Audience */}
           <div>
@@ -566,11 +590,10 @@ export const CampaignCreator: React.FC<CampaignCreatorProps> = ({
               />
             </div>
 
-            {/* Factual Integrity & Review Reminder */}
             <div className="p-3.5 rounded-sm bg-[#F9F8F6] border border-[#1C1C1C]/10 flex items-start space-x-2.5">
               <ShieldCheck className="w-4 h-4 text-[#FF5F1F] shrink-0 mt-0.5" />
               <div className="text-[11px] text-[#1C1C1C]/70 leading-relaxed font-serif italic">
-                <strong>Safety Governance:</strong> Stories promote hazard awareness without fabricating technical standards. Always review outputs against site-specific procedures before deployment.
+                <strong>Safety Story Guarantee:</strong> Produces actionable hazard engagement campaigns, character journeys, and visual storyboards aligned with industry best practices.
               </div>
             </div>
           </div>
@@ -614,16 +637,15 @@ export const CampaignCreator: React.FC<CampaignCreatorProps> = ({
               }`}
             >
               <Sparkles className="w-4 h-4 text-[#FF5F1F]" />
-              <span>Transform Idea Into Entire Campaign</span>
+              <span>Generate Complete Safety Campaign</span>
               <Send className="w-3.5 h-3.5" />
             </button>
           )}
           <p className="text-[10px] uppercase tracking-wider font-bold text-[#1C1C1C]/40 mt-3 text-center">
-            Pipeline: 10-Step Narrative &bull; Storyboard &bull; 4-Min Toolbox Talk &bull; Interactive Simulator &bull; 60s Script &bull; Multi-Platform Social
+            10-Step Narrative &bull; Storyboard &bull; 4-Min Toolbox Talk &bull; Interactive Simulator &bull; Multi-Platform Suite
           </p>
         </div>
       </form>
     </div>
   );
 };
-

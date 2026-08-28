@@ -59,14 +59,15 @@ export const CampaignExporter: React.FC<CampaignExporterProps> = ({
     <p style="margin-top: 10px;"><strong>Core Life-Saving Rule:</strong> ${campaign.coreRuleSummary}</p>
   </div>
 
-  <h2>1. The Safety Narrative: ${campaign.narrative.title}</h2>
-  <p><strong>Protagonist:</strong> ${campaign.narrative.character}</p>
-  <p><strong>Setting:</strong> ${campaign.narrative.setting}</p>
-  <p><strong>The Dilemma:</strong> ${campaign.narrative.incitingIncident}</p>
-  <p><strong>Rising Conflict:</strong> ${campaign.narrative.conflict}</p>
-  <p><strong>Turning Point:</strong> ${campaign.narrative.turningPoint}</p>
-  <p><strong>Resolution:</strong> ${campaign.narrative.resolution}</p>
-  <p><strong>Safety Takeaway:</strong> ${campaign.narrative.lessonTakeaway}</p>
+  <h2>1. The Safety Narrative: ${campaign.narrative.title || campaign.campaignTitle}</h2>
+  <p><strong>Protagonist:</strong> ${campaign.narrative.character || "Frontline Team"}</p>
+  <p><strong>Setting:</strong> ${campaign.narrative.setting || "Operational Site"}</p>
+  <p><strong>The Initial Situation:</strong> ${campaign.narrative.initialSituation || campaign.narrative.incitingIncident || "Operations in progress"}</p>
+  <p><strong>Rising Conflict & Risk:</strong> ${campaign.narrative.conflictOrRisk || campaign.narrative.conflict || "Hazard variance detected"}</p>
+  <p><strong>Critical Decision Point:</strong> ${campaign.narrative.criticalDecision || campaign.narrative.turningPoint || "Crew halts to inspect and apply controls"}</p>
+  <p><strong>The Consequence / Outcome:</strong> ${campaign.narrative.consequence || "Near-miss avoided through proactive intervention"}</p>
+  <p><strong>Resolution:</strong> ${campaign.narrative.interventionOrResolution || campaign.narrative.resolution || "System brought to verified zero-harm state"}</p>
+  <p><strong>Core Life-Saving Lesson:</strong> ${campaign.narrative.keyLesson || campaign.narrative.lessonTakeaway || campaign.coreRuleSummary}</p>
 
   <h2>2. 5-Scene Visual Storyboard</h2>
   ${campaign.storyboard

@@ -40,20 +40,28 @@ export const StoryboardView: React.FC<StoryboardViewProps> = ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt, aspectRatio: "16:9" }),
       });
-      const data = await res.json();
-      const finalUrl = data.imageUrl || data.fallbackUrl;
 
-      if (finalUrl) {
-        setScenes((prev) =>
-          prev.map((s) => (s.sceneNumber === sceneNumber ? { ...s, imageUrl: finalUrl } : s))
-        );
-        if (onUpdateSceneImage) {
-          onUpdateSceneImage(sceneNumber, finalUrl);
+      let finalUrl = "";
+      if (res.ok) {
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const data = await res.json();
+          finalUrl = data.imageUrl || data.fallbackUrl || "";
         }
       }
+
+      if (!finalUrl) {
+        finalUrl = `https://picsum.photos/seed/${encodeURIComponent(prompt.slice(0, 12))}/800/450`;
+      }
+
+      setScenes((prev) =>
+        prev.map((s) => (s.sceneNumber === sceneNumber ? { ...s, imageUrl: finalUrl } : s))
+      );
+      if (onUpdateSceneImage) {
+        onUpdateSceneImage(sceneNumber, finalUrl);
+      }
     } catch (err) {
-      console.error("Image generation failed", err);
-      // Fallback
+      console.warn("Image generation fallback applied", err);
       const fallback = `https://picsum.photos/seed/${encodeURIComponent(prompt.slice(0, 12))}/800/450`;
       setScenes((prev) =>
         prev.map((s) => (s.sceneNumber === sceneNumber ? { ...s, imageUrl: fallback } : s))

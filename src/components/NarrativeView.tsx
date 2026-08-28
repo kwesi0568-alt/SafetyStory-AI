@@ -135,7 +135,12 @@ export const NarrativeView: React.FC<NarrativeViewProps> = ({ campaign }) => {
     window.speechSynthesis.cancel();
     synthRef.current = window.speechSynthesis;
 
-    const fullText = `${campaignTitle}. ${slogan}. ${narrative.character}. ${narrative.incitingIncident}. ${narrative.conflict}. ${narrative.turningPoint}. ${narrative.resolution}. ${narrative.lessonTakeaway}`;
+    const speechParts = [
+      campaignTitle,
+      slogan,
+      ...narrativeSections.map((s) => s.content),
+    ].filter(Boolean);
+    const fullText = speechParts.join(". ");
     
     const utterance = new SpeechSynthesisUtterance(fullText);
     currentUtteranceRef.current = utterance;
@@ -175,28 +180,17 @@ export const NarrativeView: React.FC<NarrativeViewProps> = ({ campaign }) => {
   };
 
   const handleCopyStory = () => {
+    const sectionBlocks = narrativeSections
+      .map((s) => `### ${s.label}\n${s.content}`)
+      .join("\n\n");
+
     const fullStoryMarkdown = `# ${campaignTitle}
 **Slogan**: ${slogan}
 **Emotional Hook**: ${emotionalHook}
 
-## The Story: ${narrative.title}
-- **Protagonist**: ${narrative.character}
-- **Setting**: ${narrative.setting}
+## The Story: ${narrative.title || campaignTitle}
 
-### 1. Inciting Incident
-${narrative.incitingIncident}
-
-### 2. Conflict
-${narrative.conflict}
-
-### 3. The Turning Point
-${narrative.turningPoint}
-
-### 4. Resolution
-${narrative.resolution}
-
-### Golden Takeaway
-${narrative.lessonTakeaway}
+${sectionBlocks}
 `;
     navigator.clipboard.writeText(fullStoryMarkdown);
     setCopied(true);

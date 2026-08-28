@@ -33,6 +33,13 @@ export type StoryArchetype =
   | "Everyday Metaphor & Analogy"
   | "Watercooler Satire & Relatable Humor";
 
+export type SafetyStoryMode =
+  | "Creative Story"
+  | "HSE Learning"
+  | "Documentary"
+  | "Incident / Near-Miss Report"
+  | "Verified HSE";
+
 export interface CreativeConcept {
   id: string;
   title: string;
@@ -189,7 +196,6 @@ export interface SafetyCampaign {
   slogan: string;
   emotionalHook: string;
   coreRuleSummary: string;
-  reviewNote?: string;
   impactMetrics: {
     memorabilityScore: number;
     emotionalResonance: number;
